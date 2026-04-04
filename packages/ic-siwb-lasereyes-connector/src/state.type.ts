@@ -14,6 +14,8 @@ export type State = {
   provider?: LaserEyesClient;
   network?: NetworkType;
   anonymousActor?: ActorSubclass<SIWB_IDENTITY_SERVICE>;
+  anonymousActor1?: ActorSubclass<SIWB_IDENTITY_SERVICE>;
+  anonymousActor2?: ActorSubclass<SIWB_IDENTITY_SERVICE>;
   isInitializing: boolean;
   prepareLoginStatus: PrepareLoginStatus;
   prepareLoginError?: Error;
@@ -25,4 +27,5 @@ export type State = {
   identityPublicKey?: string;
   delegationChain?: DelegationChain;
   signMessageType?: SignMessageType;
+  random?: string;
 };

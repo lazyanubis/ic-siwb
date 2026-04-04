@@ -3,4 +3,5 @@ export type SiwbIdentityStorage = {
   publicKey: string;
   sessionIdentity: string;
   delegationChain: string;
+  random: string;
 };

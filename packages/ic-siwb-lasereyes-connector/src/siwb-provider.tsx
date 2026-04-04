@@ -65,6 +65,8 @@ export async function callLogin(
 
   const loginReponse = await anonymousActor.siwb_login(data, address, publickeyHex, new Uint8Array(sessionPublicKey), signMessageType);
 
+  console.log("🚀 ~ callLogin ~ loginReponse:", loginReponse)
+
   if ('Err' in loginReponse) {
     throw new Error(loginReponse.Err);
   }

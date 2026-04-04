@@ -17,6 +17,7 @@ export type GetDelegationResponse = { Ok: SignedDelegation } | { Err: string };
 export interface LoginOkResponse {
   user_canister_pubkey: CanisterPublicKey;
   expiration: Timestamp;
+  random: string;
 }
 
 export type LoginResponse = { Ok: LoginOkResponse } | { Err: string };

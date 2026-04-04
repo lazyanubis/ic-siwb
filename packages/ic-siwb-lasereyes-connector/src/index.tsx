@@ -28,7 +28,7 @@ export * from './storage.type';
 // import { toHexString } from '@dfinity/candid';
 
 export class SiwbConnector {
-  constructor(private delegationIdentity: DelegationIdentity, private publicKey: string, private userAddress: string) {}
+  constructor(private delegationIdentity: DelegationIdentity, private publicKey: string, private userAddress: string) { }
 
   static async connect(provider: LaserEyesClient, canisterId?: string): Promise<SiwbConnector> {
     let key: null | SignIdentity = null;
@@ -328,10 +328,10 @@ export type LaserEyesContextType = {
     broadcast?: boolean,
   ) => Promise<
     | {
-        signedPsbtHex: string | undefined;
-        signedPsbtBase64: string | undefined;
-        txId?: string;
-      }
+      signedPsbtHex: string | undefined;
+      signedPsbtBase64: string | undefined;
+      txId?: string;
+    }
     | undefined
   >;
   pushPsbt: (tx: string) => Promise<string | undefined>;
@@ -431,6 +431,8 @@ export type SiwbIdentityContextType = {
   getPublicKey: () => string | undefined;
 
   setLaserEyes: (laserEyes: LaserEyesContextType, providerType?: ProviderType) => Promise<void>;
+
+  random?: string;
 };
 
 export const SiwbIdentityContext = createContext<SiwbIdentityContextType | undefined>(undefined);
@@ -464,6 +466,10 @@ export function SiwbIdentityProvider<T extends verifierService>({
   idlFactory,
   canisterId,
   children,
+  canisterId1,
+  canisterId2,
+  idlFactory1,
+  idlFactory2,
 }: {
   /** Configuration options for the HTTP agent used to communicate with the Internet Computer network. */
   httpAgentOptions?: HttpAgentOptions;
@@ -479,6 +485,11 @@ export function SiwbIdentityProvider<T extends verifierService>({
 
   /** The child components that the SiwbIdentityProvider will wrap. This allows any child component to access the authentication context provided by the SiwbIdentityProvider. */
   children: ReactNode;
+
+  idlFactory1: IDL.InterfaceFactory;
+  canisterId1: string;
+  idlFactory2: IDL.InterfaceFactory;
+  canisterId2: string;
 }) {
   let signMessageStatus: 'error' | 'idle' | 'pending' | 'success' = 'idle';
   let signMessageError = null;
@@ -517,7 +528,7 @@ export function SiwbIdentityProvider<T extends verifierService>({
       selectedProvider: providerType ?? p,
       provider: provider,
       network,
-      connectedBtcAddress: address ? address[0] : '',
+      connectedBtcAddress: address ? (providerType === "phantom" ? (address[0])?.address : address[0]) : "",
       connectedBtcPublicKey: publicKey,
     });
   }
@@ -535,7 +546,7 @@ export function SiwbIdentityProvider<T extends verifierService>({
    * is optional, as it will be called automatically on login if not called manually.
    */
   async function prepareLogin(): Promise<string | undefined> {
-    if (!state.anonymousActor) {
+    if (!state.anonymousActor1) {
       throw new Error('Hook not initialized properly. Make sure to supply all required props to the SiwbIdentityProvider.');
     }
     if (!state.connectedBtcAddress) {
@@ -548,7 +559,7 @@ export function SiwbIdentityProvider<T extends verifierService>({
     });
 
     try {
-      const siwbMessage = await callPrepareLogin(state.anonymousActor, state.connectedBtcAddress);
+      const siwbMessage = await callPrepareLogin(state.anonymousActor1, state.connectedBtcAddress);
       updateState({
         siwbMessage,
         prepareLoginStatus: 'success',
@@ -603,7 +614,7 @@ export function SiwbIdentityProvider<T extends verifierService>({
     const sessionIdentity = Ed25519KeyIdentity.generate();
     const sessionPublicKey = sessionIdentity.getPublicKey().toDer();
 
-    if (!state.anonymousActor || !state.connectedBtcAddress || !state.connectedBtcPublicKey) {
+    if (!state.anonymousActor || !state.anonymousActor1 || !state.anonymousActor2 || !state.connectedBtcAddress || !state.connectedBtcPublicKey) {
       rejectLoginWithError(new Error('Invalid actor or address.'));
       return;
     }
@@ -629,7 +640,7 @@ export function SiwbIdentityProvider<T extends verifierService>({
     // Call the backend's siwb_get_delegation method to get the delegation.
     let signedDelegation: ServiceSignedDelegation;
     try {
-      signedDelegation = await callGetDelegation(state.anonymousActor, state.connectedBtcAddress, sessionPublicKey, loginOkResponse.expiration);
+      signedDelegation = await callGetDelegation(state.anonymousActor2, state.connectedBtcAddress, sessionPublicKey, loginOkResponse.expiration);
     } catch (e) {
       rejectLoginWithError(e, 'Unable to get identity.');
       return;
@@ -643,7 +654,7 @@ export function SiwbIdentityProvider<T extends verifierService>({
     const identity = DelegationIdentity.fromDelegation(sessionIdentity, delegationChain);
 
     // Save the identity to local storage.
-    saveIdentity(state.connectedBtcAddress, publickeyHex, sessionIdentity, delegationChain);
+    saveIdentity(state.connectedBtcAddress, publickeyHex, sessionIdentity, delegationChain, loginOkResponse.random);
 
     // Set the identity in state.
     updateState({
@@ -652,6 +663,7 @@ export function SiwbIdentityProvider<T extends verifierService>({
       identityPublicKey: publickeyHex,
       identity,
       delegationChain,
+      random: loginOkResponse.random
     });
 
     loginPromiseHandlers.current?.resolve(identity);
@@ -675,6 +687,14 @@ export function SiwbIdentityProvider<T extends verifierService>({
     // Set the promise handlers immediately to ensure they are available for error handling.
 
     if (!state.anonymousActor) {
+      rejectLoginWithError(new Error('Hook not initialized properly. Make sure to supply all required props to the SiwbIdentityProvider.'));
+      return promise;
+    }
+    if (!state.anonymousActor1) {
+      rejectLoginWithError(new Error('Hook not initialized properly. Make sure to supply all required props to the SiwbIdentityProvider.'));
+      return promise;
+    }
+    if (!state.anonymousActor2) {
       rejectLoginWithError(new Error('Hook not initialized properly. Make sure to supply all required props to the SiwbIdentityProvider.'));
       return promise;
     }
@@ -705,7 +725,7 @@ export function SiwbIdentityProvider<T extends verifierService>({
       if (state.provider !== undefined) {
         signMessageStatus = 'pending';
         let signMessageType;
-        if (state.selectedProvider === XVERSE) {
+        if (state.selectedProvider === XVERSE || state.selectedProvider === "phantom") {
           const [addressType, _] = getAddressType(state.connectedBtcAddress);
           if (addressType === AddressType.P2TR || addressType === AddressType.P2WPKH) {
             signMessageType = { Bip322Simple: null };
@@ -773,7 +793,7 @@ export function SiwbIdentityProvider<T extends verifierService>({
    */
   useEffect(() => {
     try {
-      const [a, p, i, d] = loadIdentity();
+      const [a, p, i, d, random] = loadIdentity();
 
       updateState({
         identityAddress: a,
@@ -781,6 +801,7 @@ export function SiwbIdentityProvider<T extends verifierService>({
         identity: i,
         delegationChain: d,
         isInitializing: false,
+        random,
       });
     } catch (e) {
       if (e instanceof Error) {
@@ -813,10 +834,24 @@ export function SiwbIdentityProvider<T extends verifierService>({
       httpAgentOptions,
       actorOptions,
     });
+    const a1 = createAnonymousActor({
+      idlFactory: idlFactory1,
+      canisterId: canisterId1,
+      httpAgentOptions,
+      actorOptions,
+    });
+    const a2 = createAnonymousActor({
+      idlFactory: idlFactory2,
+      canisterId: canisterId2,
+      httpAgentOptions,
+      actorOptions,
+    });
     updateState({
       anonymousActor: a,
+      anonymousActor1: a1,
+      anonymousActor2: a2,
     });
-  }, [idlFactory, canisterId, httpAgentOptions, actorOptions]);
+  }, [idlFactory, canisterId, idlFactory1, canisterId1, idlFactory2, canisterId2, httpAgentOptions, actorOptions]);
 
   return (
     <SiwbIdentityContext.Provider
