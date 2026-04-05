@@ -540,8 +540,8 @@
 //         session_expires_in: Some(Duration::from_secs(60 * 60 * 24 * 7).as_nanos() as u64), // 1 week
 //         targets: targets.clone(),
 //         runtime_features: Some(vec![
-//             RuntimeFeature::DisableEthToPrincipalMapping,
-//             RuntimeFeature::DisablePrincipalToEthMapping,
+//             RuntimeFeature::DisableBtcToPrincipalMapping,
+//             RuntimeFeature::DisablePrincipalToBtcMapping,
 //         ]),
 //     }
 // }

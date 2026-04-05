@@ -26,9 +26,9 @@
 //     // Enabling this feature will include the app frontend URI as part of the identity seed.
 //     IncludeUriInSeed,
 //     // Disabling this feature will disable the mapping and permanent storage of the Ethereum address to the principal.
-//     DisableEthToPrincipalMapping,
+//     DisableBtcToPrincipalMapping,
 //     // Disabling this feature will disable the mapping and permanent storage of the principal to the Ethereum address.
-//     DisablePrincipalToEthMapping,
+//     DisablePrincipalToBtcMapping,
 // }
 //
 // #[derive(CandidType)]

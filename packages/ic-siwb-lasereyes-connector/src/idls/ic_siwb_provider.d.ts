@@ -22,7 +22,7 @@ export type PrepareLoginResponse = { Ok: SiwbMessage } | { Err: string };
 // export type Principal = Uint8Array | number[];
 export type PublicKey = Uint8Array | number[];
 export type PublickeyHex = string;
-export type RuntimeFeature = { IncludeUriInSeed: null } | { DisableEthToPrincipalMapping: null } | { DisablePrincipalToEthMapping: null };
+export type RuntimeFeature = { IncludeUriInSeed: null } | { DisableBtcToPrincipalMapping: null } | { DisablePrincipalToBtcMapping: null };
 export type SessionKey = PublicKey;
 export interface SettingsInput {
   uri: string;

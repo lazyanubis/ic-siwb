@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Runtime features that allow for customization of the provider canister behavior: `IncludeUriInSeed`, `DisableEthToPrincipalMapping` and `DisablePrincipalToEthMapping`. See [README.md](./README.md) for details.
+- Runtime features that allow for customization of the provider canister behavior: `IncludeUriInSeed`, `DisableBtcToPrincipalMapping` and `DisablePrincipalToBtcMapping`. See [README.md](./README.md) for details.
 
 ## [0.0.5] - 2024-02-22
 

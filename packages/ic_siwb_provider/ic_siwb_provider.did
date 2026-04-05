@@ -11,8 +11,8 @@ type String = text;
 
 type RuntimeFeature = variant { 
   IncludeUriInSeed; 
-  DisableEthToPrincipalMapping; 
-  DisablePrincipalToEthMapping 
+  DisableBtcToPrincipalMapping; 
+  DisablePrincipalToBtcMapping 
 };
 
 type SignMessageType = variant {

@@ -3,8 +3,8 @@
 export const idlFactory = ({ IDL }: any) => {
   const RuntimeFeature = IDL.Variant({
     IncludeUriInSeed: IDL.Null,
-    DisableEthToPrincipalMapping: IDL.Null,
-    DisablePrincipalToEthMapping: IDL.Null,
+    DisableBtcToPrincipalMapping: IDL.Null,
+    DisablePrincipalToBtcMapping: IDL.Null,
   });
   const SettingsInput = IDL.Record({
     uri: IDL.Text,
@@ -71,8 +71,8 @@ export const idlFactory = ({ IDL }: any) => {
 export const init = ({ IDL }: any) => {
   const RuntimeFeature = IDL.Variant({
     IncludeUriInSeed: IDL.Null,
-    DisableEthToPrincipalMapping: IDL.Null,
-    DisablePrincipalToEthMapping: IDL.Null,
+    DisableBtcToPrincipalMapping: IDL.Null,
+    DisablePrincipalToBtcMapping: IDL.Null,
   });
   const SettingsInput = IDL.Record({
     uri: IDL.Text,
