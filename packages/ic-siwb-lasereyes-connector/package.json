@@ -1,5 +1,5 @@
 {
-  "name": "ic-siwb-lasereyes-connector",
+  "name": "ic-siwb-lasereyes-connector-random",
   "version": "0.1.9",
   "description": "React hook and context provider for easy frontend integration with SIWE enabled Internet Computer canisters.",
   "author": "ghostcorn <ghostcorn@astrox.network>",
