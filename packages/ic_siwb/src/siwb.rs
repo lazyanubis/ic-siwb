@@ -102,7 +102,7 @@ impl SiwbMessage {
     /// `true` if the message is within its valid time period, `false` otherwise.
     pub fn is_expired(&self) -> bool {
         let current_time = get_current_time();
-        self.issued_at < current_time || current_time > self.expiration_time
+        current_time < self.issued_at || self.expiration_time <= current_time
     }
 }
 
